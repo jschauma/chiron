@@ -61,6 +61,12 @@ def build_matcher(regex, flags=0):
 # Generic fetchers (parametrizable by site)
 
 def fetch_bugzilla(url):
+    """
+    Return a fetcher for a bugzilla instance
+
+    >>> fetch_bugzilla("https://bugzilla.redhat.com")("123456")
+    (u'https://bugzilla.redhat.com/show_bug.cgi?id=123456', 'System with Syntax - S635MP motherboard will not install')
+    """
     def bugzilla_fetcher(ticket):
         u = '%s/show_bug.cgi?id=%s' % (url, ticket)
         f = urllib.urlopen(u)
@@ -73,6 +79,12 @@ def fetch_bugzilla(url):
     return bugzilla_fetcher
 
 def fetch_trac(url):
+    """
+    Return a fetcher for a Trac instance
+
+    >>> fetch_trac("https://debathena.mit.edu/trac")("123")
+    (u'https://debathena.mit.edu/trac/ticket/123', u'debathena-ssl-certificates should include a CRL')
+    """
     def trac_fetcher(ticket):
         u = '%s/ticket/%s' % (url, ticket)
         f = urllib.urlopen(u + '?format=csv')
@@ -84,6 +96,12 @@ def fetch_trac(url):
     return trac_fetcher
 
 def fetch_github(user, repo, ):
+    """
+    Return a fetcher for a Github instance
+
+    >>> fetch_github("sipb", "chiron")("2")
+    (u'https://github.com/sipb/chiron/issues/2', u'Teach debothena about its bugtracker')
+    """
     def fetch(ticket):
         u = 'https://api.github.com/repos/%s/%s/issues/%s' % (user, repo, ticket, )
         f = urllib.urlopen(u)
@@ -97,6 +115,12 @@ def fetch_github(user, repo, ):
 # Project-specific fetchers
 
 def fetch_rfc(number):
+    """
+    RFC fetcher
+
+    >>> fetch_rfc("1234")
+    (u'https://tools.ietf.org/html/rfc1234', 'Tunneling IPX traffic through IP networks')
+    """
     u = "https://tools.ietf.org/html/rfc%s" % (number, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
@@ -105,6 +129,19 @@ def fetch_rfc(number):
 
 fetch_cve_rhbz = fetch_bugzilla("https://bugzilla.redhat.com")
 def fetch_cve(ticket):
+    """
+    CVE fetcher
+
+    >>> fetch_cve("CVE-2015-1234")
+    RHBZ url='https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2015-1234' title='CVE-2015-1234 chromium-browser: buffer overflow via race condition in GPU'
+    (u'https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2015-1234', u'[RHBZ] CVE-2015-1234 chromium-browser: buffer overflow via race condition in GPU')
+    >>> fetch_cve("CVE-1999-0012")
+    RHBZ url='https://bugzilla.redhat.com/show_bug.cgi?id=CVE-1999-0012' title='None'
+    (u'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0012', u'\\nSome web servers under Microsoft Windows allow remote attackers\\nto bypass access restrictions for files with long file names.\\n')
+    >>> fetch_cve("CVE-1999-9000")
+    RHBZ url='https://bugzilla.redhat.com/show_bug.cgi?id=CVE-1999-9000' title='None'
+    (u'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-9000', None)
+    """
     # Try fetching from RHBZ first, since it tends to be better
     url, title = fetch_cve_rhbz(ticket)
     print("RHBZ url='%s' title='%s'" % (url, title))
@@ -121,6 +158,12 @@ def fetch_cve(ticket):
         return u, None
 
 def fetch_scripts_faq(ticket):
+    """
+    scripts.mit.edu FAQ fetcher
+
+    >>> fetch_scripts_faq("136")
+    (u'http://scripts.mit.edu/faq/136', u'Is scripts.mit.edu appropriate for my\\xa0site?')
+    """
     u = 'http://scripts.mit.edu/faq/%s' % ticket
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
@@ -131,6 +174,12 @@ def fetch_scripts_faq(ticket):
         return u, None
 
 def fetch_launchpad(ticket):
+    """
+    Launchpad fetcher
+
+    >>> fetch_launchpad("123456")
+    (u'https://bugs.launchpad.net/bugs/123456', u'podcast crashes amarok')
+    """
     u = 'http://api.launchpad.net/1.0/bugs/%s' % ticket
     f = urllib.urlopen(u)
     j = json.load(f)
@@ -140,6 +189,12 @@ def fetch_launchpad(ticket):
         return u, None
 
 def fetch_debbugs(url):
+    """
+    Debbugs (Debian bugtracker) fetcher
+
+    >>> fetch_debbugs("https://bugs.debian.org")("123456")
+    (u'https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=123456', 'ITP: eazel-engine -- Crux theme for GTK+')
+    """
     def debbugs_fetcher(ticket):
         u = '%s/cgi-bin/bugreport.cgi?bug=%s' % (url, ticket)
         f = urllib.urlopen(u)
@@ -152,6 +207,13 @@ def fetch_debbugs(url):
     return debbugs_fetcher
 
 def fetch_dsa(number):
+    """
+    Debian Security Advisories fetcher
+
+    >>> fetch_dsa("DSA-1234")
+        -> DSA URLs in page: []
+    (u'https://security-tracker.debian.org/tracker/DSA-1234', 'ruby1.6')
+    """
     tu = "https://security-tracker.debian.org/tracker/%s" % (number, )
     tf = urllib.urlopen(tu)
     tt = etree.parse(tf, parser)
@@ -166,11 +228,18 @@ def fetch_dsa(number):
 
 
 def fetch_pokemon(ticket):
+    """
+    Pokemon fetcher (by Pokedex number)
+
+    >>> fetch_pokemon("123")
+    (u'http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number', u'Scyther (Bug, Flying)')
+    """
     u = 'http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number'
     f = urllib.urlopen(u + '?action=raw')
     for line in f:
         if line[0:7] == '{{rdex|':
-            (id, name) = line.split('|')[2:4]
+            # TODO: do something saner (like fetch as Unicode)
+            (id, name) = line.split(b'|')[2:4]
             try:
                 if int(id) == int(ticket):
                     return u, "%s (%s)" % (name, ", ".join(line.split('}')[0].split('|')[5:]))
@@ -179,17 +248,29 @@ def fetch_pokemon(ticket):
     return u, None
 
 def fetch_mit_class(ticket):
+    """
+    MIT class fetcher
+
+    >>> fetch_mit_class("6.828")
+    (u'http://student.mit.edu/catalog/search.cgi?search=6.828', '6.828 Operating System Engineering')
+    """
     u = 'http://student.mit.edu/catalog/search.cgi?search=%s' % (ticket, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
     title = t.xpath('string(//h3)')
     if title:
-        return u, title
+        return u, title.strip()
     else:
         return u, None
 
 def fetch_whats(whats):
-    u = "http://stuff.mit.edu/cgi/whats.cgi?%s" % (whats, )
+    """
+    whats fetcher (MIT SIPB acronym database)
+
+    >>> fetch_whats("SIPB")
+    (u'https://stuff.mit.edu/cgi/whats.cgi?SIPB', 'Student Information Processing Board')
+    """
+    u = "https://stuff.mit.edu/cgi/whats.cgi?%s" % (whats, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
     title = t.xpath('string(//dl/dd)')
@@ -208,6 +289,12 @@ def undebathena_fun():
     return u, "%s should divert %s/%s" % (package, dir, file)
 
 def fetch_bible(verse):
+    r"""
+    Bible fetcher
+
+    >>> fetch_bible("John 4:8")
+    (u'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=John+4%3A8&output-format=plain-text', u'\n=======================================================\nJohn 4:8\n   [8](For his disciples had gone away into the city to buy food.) (ESV)\n(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)')
+    """
     u = 'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=%s&output-format=plain-text' % (urllib.quote_plus(verse), )
     bible_text = urllib.urlopen(u).read()
     copyright = "(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)"
@@ -215,6 +302,12 @@ def fetch_bible(verse):
     return u, text
 
 def fetch_xkcd(comic):
+    """
+    XKCD fetcher
+
+    >>> fetch_xkcd("123")
+    (u'http://xkcd.com/123/', 'xkcd: Centrifugal Force')
+    """
     u = 'http://xkcd.com/%s/' % (comic, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
@@ -225,18 +318,36 @@ def fetch_xkcd(comic):
         return u, None
 
 def fetch_unicode(codepoint):
-    u = 'http://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
+    """
+    Unicode fetcher (number->char)
+
+    This would work with a browser, but we seem to be blocked by Cloudflare
+    now, so Chiron's Unicode support seems to be broken. So, uh, test that it
+    hasn't resumed working.
+
+    >>> fetch_unicode("2603")
+    Unicode: 'Access denied | www.fileformat.info used CloudFlare to restrict access' '403'
+    (u'https://www.fileformat.info/info/unicode/char/2603/index.htm', None)
+    """
+    u = 'https://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
     title = t.xpath('string(//title)')
+    print("Unicode: '%s' '%s'" % (title, f.getcode()))
     if title and f.getcode() == 200:
         return u, title + ': ' + unichr(int(codepoint, 16))
     else:
         return u, None
 
 def fetch_unicode_char(character):
+    """
+    Unicode fetcher (char->number)
+
+    >>> fetch_unicode_char("\u1234")
+    (u'https://www.fileformat.info/info/unicode/char/1234/index.htm', u'U+1234')
+    """
     codepoint = format(ord(character), 'x')
-    u = 'http://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
+    u = 'https://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
     title = t.xpath('string(//title)')
@@ -246,6 +357,12 @@ def fetch_unicode_char(character):
         return u, "U+%s" % (codepoint, )
 
 def fetch_airport(code):
+    """
+    Airport fetcher (code->location)
+
+    >>> fetch_airport("BOS")
+    (u'http://www.gcmap.com/airport/BOS', u'Boston, Massachusetts, United States (General Edward Lawrence Logan International Airport)')
+    """
     u = 'http://www.gcmap.com/airport/%s' % (code, )
     f = urllib.urlopen(u)
     t = etree.parse(f, parser)
@@ -380,3 +497,7 @@ def format_tickets(last_seen, msg, tickets):
             messages.append((message, u))
             last_seen[(tracker, ticket, msg.cls())] = time.time()
     return messages
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
