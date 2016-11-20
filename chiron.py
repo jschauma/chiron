@@ -292,7 +292,10 @@ u"""
 # Declarations of MATCHERS and FETCHERS #
 #########################################
 
-def subspan((a, b), (c, d)):
+def subspan(arg1, arg2):
+    """Return whether the (x,y) range indicated by arg1 is entirely contained in arg2"""
+    a,b=arg1
+    c,d=arg2
     return cmp(a, c) - cmp(b, d) >= 1
 
 class MatchEngine(object):
@@ -339,9 +342,14 @@ class MatchEngine(object):
                 for m in ms:
                     for match in m(msg):
                         span = match.span()
+                        # If the text matched by this matcher is a subset of
+                        # that matched for by any other matcher, skip this one
                         if any(subspan(span, span1) for tracker1, fetcher1, t1, span1 in tickets):
                             continue
-                        tickets = filter(lambda (tracker1, fetcher1, t1, span1): not subspan(span1, span), tickets)
+                        # Remove from tickets any whose text is a subset of
+                        # this one's matched text.
+                        tickets = filter(lambda ticket1: not subspan(ticket1[3], span), tickets)
+                        # Add this matcher
                         tickets.append((tracker, self.fetchers[tracker], match.group(1), span))
         return tickets
 
