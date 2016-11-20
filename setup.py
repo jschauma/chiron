@@ -30,7 +30,7 @@ setup(
     packages=[],
     py_modules=["chiron", "chiron_zephyr", "chiron_zulip"],
 
-    install_requires=['lxml'],
+    install_requires=['lxml', 'requests'],
     extras_require={
         #'zephyr': ['-r requirements.zephyr.txt'],
         #'test': ['coverage'],

@@ -2,18 +2,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 import re
-import urllib
 from lxml import etree
 import time
 import datetime
 import sys
 from random import choice
+import requests
 import os
 import json
 import csv
 
 seen_timeout = 5 * 60
 parser = etree.HTMLParser(encoding='UTF-8')
+
+def fetch_and_parse_xml(url):
+    r = requests.get(url, stream=True)
+    t = etree.fromstring(r.content, parser)
+    return t,r
 
 class Message(object):
     def log_arrival(self, ):
@@ -69,8 +74,7 @@ def fetch_bugzilla(url):
     """
     def bugzilla_fetcher(ticket):
         u = '%s/show_bug.cgi?id=%s' % (url, ticket)
-        f = urllib.urlopen(u)
-        t = etree.parse(f, parser)
+        t,r = fetch_and_parse_xml(u)
         title = t.xpath('string(//span[@id="short_desc_nonedit_display"])')
         if title:
             return u, title
@@ -83,14 +87,15 @@ def fetch_trac(url):
     Return a fetcher for a Trac instance
 
     >>> fetch_trac("https://debathena.mit.edu/trac")("123")
-    (u'https://debathena.mit.edu/trac/ticket/123', u'debathena-ssl-certificates should include a CRL')
+    (u'https://debathena.mit.edu/trac/ticket/123', 'debathena-ssl-certificates should include a CRL')
     """
     def trac_fetcher(ticket):
         u = '%s/ticket/%s' % (url, ticket)
-        f = urllib.urlopen(u + '?format=csv')
-        if f.getcode() == 200:
-            d = dict(zip(*csv.reader(f)))
-            return u, unicode(d['summary'], 'utf-8')
+        r = requests.get(u + '?format=csv')
+        if r.status_code == 200:
+            reader = csv.DictReader(r.text.split('\n'))
+            row = next(reader)
+            return u, row['summary']
         else:
             return u, None
     return trac_fetcher
@@ -104,10 +109,9 @@ def fetch_github(user, repo, ):
     """
     def fetch(ticket):
         u = 'https://api.github.com/repos/%s/%s/issues/%s' % (user, repo, ticket, )
-        f = urllib.urlopen(u)
-        j = json.load(f)
+        r = requests.get(u)
         try:
-            return j['html_url'], j['title']
+            return r.json()['html_url'], r.json()['title']
         except KeyError:
             return u, None
     return fetch
@@ -122,8 +126,7 @@ def fetch_rfc(number):
     (u'https://tools.ietf.org/html/rfc1234', 'Tunneling IPX traffic through IP networks')
     """
     u = "https://tools.ietf.org/html/rfc%s" % (number, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//meta[@name="DC.Title"]/@content)')
     return u, (title or None)
 
@@ -149,8 +152,7 @@ def fetch_cve(ticket):
         return url, "[RHBZ] " + title
 
     u = 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=%s' % ticket
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//tr[th="Description"]/following::tr[1])')
     if title:
         return u, "\n" + title.strip() + "\n"
@@ -165,8 +167,7 @@ def fetch_scripts_faq(ticket):
     (u'http://scripts.mit.edu/faq/136', u'Is scripts.mit.edu appropriate for my\\xa0site?')
     """
     u = 'http://scripts.mit.edu/faq/%s' % ticket
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//h3[@class="storytitle"])')
     if title:
         return u, title
@@ -181,10 +182,9 @@ def fetch_launchpad(ticket):
     (u'https://bugs.launchpad.net/bugs/123456', u'podcast crashes amarok')
     """
     u = 'http://api.launchpad.net/1.0/bugs/%s' % ticket
-    f = urllib.urlopen(u)
-    j = json.load(f)
+    r = requests.get(u)
     try:
-        return j['web_link'], j['title']
+        return r.json()['web_link'], r.json()['title']
     except KeyError:
         return u, None
 
@@ -197,8 +197,7 @@ def fetch_debbugs(url):
     """
     def debbugs_fetcher(ticket):
         u = '%s/cgi-bin/bugreport.cgi?bug=%s' % (url, ticket)
-        f = urllib.urlopen(u)
-        t = etree.parse(f, parser)
+        t,r = fetch_and_parse_xml(u)
         title = t.xpath('normalize-space(//h1/child::text()[2])')
         if title:
             return u, title
@@ -215,8 +214,7 @@ def fetch_dsa(number):
     (u'https://security-tracker.debian.org/tracker/DSA-1234', 'ruby1.6')
     """
     tu = "https://security-tracker.debian.org/tracker/%s" % (number, )
-    tf = urllib.urlopen(tu)
-    tt = etree.parse(tf, parser)
+    tt,r = fetch_and_parse_xml(tu)
     dsa_urls = tt.xpath('//a[text()="Debian"]/@href[starts-with(.,"http://www.debian.org/security/")]')
     title = tt.xpath('string(//tr[td/b="Description"]/td[2])') or None
     print("    -> DSA URLs in page: %s" % (dsa_urls, ))
@@ -235,11 +233,10 @@ def fetch_pokemon(ticket):
     (u'http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number', u'Scyther (Bug, Flying)')
     """
     u = 'http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number'
-    f = urllib.urlopen(u + '?action=raw')
-    for line in f:
+    r = requests.get(u + '?action=raw')
+    for line in r.text.split('\n'):
         if line[0:7] == '{{rdex|':
-            # TODO: do something saner (like fetch as Unicode)
-            (id, name) = line.split(b'|')[2:4]
+            (id, name) = line.split('|')[2:4]
             try:
                 if int(id) == int(ticket):
                     return u, "%s (%s)" % (name, ", ".join(line.split('}')[0].split('|')[5:]))
@@ -255,8 +252,7 @@ def fetch_mit_class(ticket):
     (u'http://student.mit.edu/catalog/search.cgi?search=6.828', '6.828 Operating System Engineering')
     """
     u = 'http://student.mit.edu/catalog/search.cgi?search=%s' % (ticket, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//h3)')
     if title:
         return u, title.strip()
@@ -271,8 +267,7 @@ def fetch_whats(whats):
     (u'https://stuff.mit.edu/cgi/whats.cgi?SIPB', 'Student Information Processing Board')
     """
     u = "https://stuff.mit.edu/cgi/whats.cgi?%s" % (whats, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//dl/dd)')
     if title:
         title = title.strip()
@@ -280,8 +275,7 @@ def fetch_whats(whats):
 
 def undebathena_fun():
     u = 'http://debathena.mit.edu/trac/wiki/PackageNamesWeDidntUse'
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     package = choice(t.xpath('id("content")//li')).text.strip()
     dir = choice(['/etc', '/bin', '/usr/bin', '/sbin', '/usr/sbin',
                   '/dev/mapper', '/etc/default', '/var/run'])
@@ -295,11 +289,12 @@ def fetch_bible(verse):
     >>> fetch_bible("John 4:8")
     (u'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=John+4%3A8&output-format=plain-text', u'\n=======================================================\nJohn 4:8\n   [8](For his disciples had gone away into the city to buy food.) (ESV)\n(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)')
     """
-    u = 'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=%s&output-format=plain-text' % (urllib.quote_plus(verse), )
-    bible_text = urllib.urlopen(u).read()
+    u = 'http://www.esvapi.org/v2/rest/passageQuery'
+    params = (('key','IP'), ('passage',verse), ('output-format','plain-text'))
+    r = requests.get(u, params=params)
     copyright = "(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)"
-    text = "\n%s\n%s" % (bible_text, copyright, )
-    return u, text
+    text = "\n%s\n%s" % (r.text, copyright, )
+    return r.url, text
 
 def fetch_xkcd(comic):
     """
@@ -309,10 +304,9 @@ def fetch_xkcd(comic):
     (u'http://xkcd.com/123/', 'xkcd: Centrifugal Force')
     """
     u = 'http://xkcd.com/%s/' % (comic, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//title)')
-    if title and f.getcode() == 200:
+    if title and r.status_code == 200:
         return u, title
     else:
         return u, None
@@ -326,15 +320,14 @@ def fetch_unicode(codepoint):
     hasn't resumed working.
 
     >>> fetch_unicode("2603")
-    Unicode: 'Access denied | www.fileformat.info used CloudFlare to restrict access' '403'
-    (u'https://www.fileformat.info/info/unicode/char/2603/index.htm', None)
+    Unicode: 'Unicode Character 'SNOWMAN' (U+2603)' '200'
+    (u'https://www.fileformat.info/info/unicode/char/2603/index.htm', u"Unicode Character 'SNOWMAN' (U+2603): \\u2603")
     """
     u = 'https://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//title)')
-    print("Unicode: '%s' '%s'" % (title, f.getcode()))
-    if title and f.getcode() == 200:
+    print("Unicode: '%s' '%s'" % (title, r.status_code))
+    if title and r.status_code == 200:
         return u, title + ': ' + unichr(int(codepoint, 16))
     else:
         return u, None
@@ -344,14 +337,13 @@ def fetch_unicode_char(character):
     Unicode fetcher (char->number)
 
     >>> fetch_unicode_char("\u1234")
-    (u'https://www.fileformat.info/info/unicode/char/1234/index.htm', u'U+1234')
+    (u'https://www.fileformat.info/info/unicode/char/1234/index.htm', "Unicode Character 'ETHIOPIC SYLLABLE SEE' (U+1234)")
     """
     codepoint = format(ord(character), 'x')
     u = 'https://www.fileformat.info/info/unicode/char/%s/index.htm' % (codepoint, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     title = t.xpath('string(//title)')
-    if title and f.getcode() == 200:
+    if title and r.status_code == 200:
         return u, title
     else:
         return u, "U+%s" % (codepoint, )
@@ -364,11 +356,10 @@ def fetch_airport(code):
     (u'http://www.gcmap.com/airport/BOS', u'Boston, Massachusetts, United States (General Edward Lawrence Logan International Airport)')
     """
     u = 'http://www.gcmap.com/airport/%s' % (code, )
-    f = urllib.urlopen(u)
-    t = etree.parse(f, parser)
+    t,r = fetch_and_parse_xml(u)
     place = t.xpath('string(//meta[@name="geo.placename"]/@content)')
     name = t.xpath('string(//td[@class="fn org"])')
-    if place and f.getcode() == 200:
+    if place and r.status_code == 200:
         if name:
             title = "%s (%s)" % (place, name, )
         else:
