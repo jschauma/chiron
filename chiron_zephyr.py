@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+
 import re
 
 import chiron
@@ -104,7 +106,7 @@ class ZephyrMessage(chiron.Message):
             cc_line = " ".join([strip_default_realm(r) for r in recipients])
             body = "CC: %s\n%s" % (cc_line, body)
         z.fields = [url, body]
-        print '  -> Reply to: %s (original message was to "%s")' % (recipients, self._zgram.recipient, )
+        print('  -> Reply to: %s (original message was to "%s")' % (recipients, self._zgram.recipient, ))
         if messages or self.is_personal():
             for recipient in recipients:
                 z.recipient = recipient
@@ -118,13 +120,13 @@ class ZephyrMessage(chiron.Message):
     @classmethod
     def main(cls, match_engine, options):
         zephyr_setup(match_engine.classes, not match_engine.ignore_personals)
-        print "Listening..."
+        print("Listening...")
         while True:
             zgram = zephyr.receive(True)
             if not zgram:
                 continue
             if zgram.opcode.lower() == 'kill':
-                print "Killing per request -- message:"
+                print("Killing per request -- message:")
                 msg.log_arrival()
                 sys.exit(0)
             if zgram.opcode.lower() in ('auto', 'ping'):

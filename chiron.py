@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 import re
 import urllib
 from lxml import etree
@@ -16,11 +17,11 @@ parser = etree.HTMLParser(encoding='UTF-8')
 
 class Message(object):
     def log_arrival(self, ):
-        print '%s: -c %s -i "%s": %s -> %s' % (
+        print('%s: -c %s -i "%s": %s -> %s' % (
             datetime.datetime.now(),
             self.cls(), self.instance(),
             self.sender(), self.recipient(),
-        )
+        ))
 
     def body(self): raise NotImplementedError
 
@@ -106,7 +107,7 @@ fetch_cve_rhbz = fetch_bugzilla("https://bugzilla.redhat.com")
 def fetch_cve(ticket):
     # Try fetching from RHBZ first, since it tends to be better
     url, title = fetch_cve_rhbz(ticket)
-    print "RHBZ url='%s' title='%s'" % (url, title)
+    print("RHBZ url='%s' title='%s'" % (url, title))
     if title:
         return url, "[RHBZ] " + title
 
@@ -156,7 +157,7 @@ def fetch_dsa(number):
     tt = etree.parse(tf, parser)
     dsa_urls = tt.xpath('//a[text()="Debian"]/@href[starts-with(.,"http://www.debian.org/security/")]')
     title = tt.xpath('string(//tr[td/b="Description"]/td[2])') or None
-    print "    -> DSA URLs in page: %s" % (dsa_urls, )
+    print("    -> DSA URLs in page: %s" % (dsa_urls, ))
     if dsa_urls:
         dsa_url = dsa_urls[0]
     else:
@@ -356,7 +357,7 @@ class MatchEngine(object):
     def process(self, msg, ):
         msg.log_arrival()
         if self.ignore_personals and msg.is_personal():
-            print "  -> ignoring personal"
+            print("  -> ignoring personal")
             return
         tickets = self.find_ticket_info(msg)
         messages = format_tickets(self.last_seen, msg, tickets)
@@ -365,7 +366,7 @@ class MatchEngine(object):
 def format_tickets(last_seen, msg, tickets):
     messages = []
     for tracker, fetcher, ticket, span in tickets:
-        print "  -> Found ticket: %s, %s" % (tracker, ticket, )
+        print("  -> Found ticket: %s, %s" % (tracker, ticket, ))
         old_enough = (last_seen.get((tracker, ticket, msg.cls()), 0) < time.time() - seen_timeout)
         # for personals, don't bother tracking age
         if old_enough or msg.is_personal():

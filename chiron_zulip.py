@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+
 import chiron
 import zulip
 
@@ -38,14 +40,14 @@ class ZulipMessage(chiron.Message):
         reply['content'] = body
 
         if messages or self.is_personal():
-            print "  ->", self._client.send_message(reply)
+            print("  ->", self._client.send_message(reply))
 
     @classmethod
     def build_processor(cls, match_engine, client):
         def process(zulip):
             msg = cls(client, zulip)
             if '-bot' in msg.sender():
-                print "Skipping message from %s:" % (msg.sender(), )
+                print("Skipping message from %s:" % (msg.sender(), ))
                 msg.log_arrival()
             else:
                 match_engine.process(msg)
@@ -56,7 +58,7 @@ class ZulipMessage(chiron.Message):
         # zuliprc defaults to None, as does config_file
         # In both cases, this is interpreted as ~/.zuliprc
         client = zulip.Client(config_file=options.zuliprc)
-        print "Listening..."
+        print("Listening...")
         message_callback = cls.build_processor(match_engine, client)
         client.call_on_each_message(message_callback)
 
