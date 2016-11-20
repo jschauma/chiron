@@ -466,7 +466,7 @@ class MatchEngine(object):
                             continue
                         # Remove from tickets any whose text is a subset of
                         # this one's matched text.
-                        tickets = filter(lambda ticket1: not subspan(ticket1[3], span), tickets)
+                        tickets = list(filter(lambda ticket1: not subspan(ticket1[3], span), tickets))
                         # Add this matcher
                         tickets.append((tracker, self.fetchers[tracker], match.group(1), span))
         return tickets
