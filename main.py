@@ -144,6 +144,9 @@ def run_with_args(match_engine):
         raise ValueError
     chiron_protocol.main(match_engine, options)
 
-if __name__ == '__main__':
+def main():
     match_engine = init_match_engine()
     run_with_args(match_engine)
+
+if __name__ == '__main__':
+    main()
