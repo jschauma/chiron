@@ -1,0 +1,1 @@
+-e git+https://github.com/ebroder/python-zephyr.git#egg=PyZephyr
