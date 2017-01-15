@@ -32,6 +32,7 @@ def add_default_fetchers(match_engine):
         'RHBZ': chiron.fetch_bugzilla('https://bugzilla.redhat.com'),
         'pag-screen': chiron.fetch_github('sipb', 'pag-screen'),
         'Mosh': chiron.fetch_github('keithw', 'mosh'),
+        'Zulip': chiron.fetch_github('zulip', 'zulip'),
         'Scripts FAQ': chiron.fetch_scripts_faq,
         'ESP': chiron.fetch_github('learning-unlimited', 'ESP-Website'),
         'Pokedex': chiron.fetch_pokemon,
@@ -59,6 +60,7 @@ def add_default_matchers(match_engine):
     match_engine.add_matcher('RHBZ',        r'\bRHBZ[-\s:]#([0-9]{4,7})\b')
     match_engine.add_matcher('pag-screen',  r'\bpag-screen[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Mosh',        r'\bmosh[-\s:]*#([0-9]{1,5})\b')
+    match_engine.add_matcher('Zulip',       r'\bzulip[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Scripts FAQ', r'\bscripts\sfaq[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Scripts FAQ', r'\bfaq[-\s:]*#([0-9]{1,5})\b', classes=['scripts'])
     match_engine.add_matcher('ESP',         r'#([0-9]{2,5})\b(?!-Ubuntu)', classes=['esp'])
