@@ -12,6 +12,11 @@ import os
 import json
 import csv
 
+try:
+    unichr
+except NameError as e: # not available in Py3
+    unichr = chr
+
 seen_timeout = 5 * 60
 parser = etree.HTMLParser(encoding='UTF-8')
 
