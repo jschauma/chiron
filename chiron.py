@@ -476,7 +476,23 @@ def invoke_debothena(ticket):
 #########################################
 
 def subspan(arg1, arg2):
-    """Return whether the (x,y) range indicated by arg1 is entirely contained in arg2"""
+    """Return whether the (x,y) range indicated by arg1 is entirely contained in arg2
+
+    >>> subspan((1,2), (3,4))
+    False
+    >>> subspan((1,3), (2,4))
+    False
+    >>> subspan((3,4), (1,2))
+    False
+    >>> subspan((2,4), (1,3))
+    False
+    >>> subspan((1,4), (2,3))
+    False
+    >>> subspan((2,3), (1,4))
+    True
+    >>> subspan((1,4), (1,4))
+    False
+    """
     beg1, end1 = arg1
     beg2, end2 = arg2
     return (beg1 >= beg2) and (end1 <= end2) and ((beg1 != beg2) or (end1 != end2))
