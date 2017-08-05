@@ -29,6 +29,7 @@ def add_default_fetchers(match_engine):
         'DSA': chiron.fetch_dsa,
         'Chiron': chiron.fetch_github('sipb', 'chiron'),
         'zcommit': chiron.fetch_github('sipb', 'zcommit'),
+        'Barnowl Github': chiron.fetch_github('barnowl', 'barnowl'),
         'Zulip': chiron.fetch_github('zulip', 'zulip'),
         'RHBZ': chiron.fetch_bugzilla('https://bugzilla.redhat.com'),
         'pag-screen': chiron.fetch_github('sipb', 'pag-screen'),
@@ -58,6 +59,8 @@ def add_default_matchers(match_engine):
     match_engine.add_matcher('DSA',         r'\b(DSA-[0-9-]{4,10})\b')
     match_engine.add_matcher('Chiron',      r'\bchiron[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('zcommit',     r'\bzcommit[-\s:]*#([0-9]{1,5})\b')
+    match_engine.add_matcher('Barnowl Github',  r'\bGithub[-\s:]*#([0-9]{1,6})\b', classes=['barnowl'])
+    match_engine.add_matcher('Barnowl Github',  r'\bPR[-\s:]*#([0-9]{1,6})\b', classes=['barnowl'])
     match_engine.add_matcher('Zulip',       r'\bZulip[-\s:]*#([0-9]{1,6})\b')
     match_engine.add_matcher('RHBZ',        r'\bRHBZ[-\s:]#([0-9]{4,7})\b')
     match_engine.add_matcher('pag-screen',  r'\bpag-screen[-\s:]*#([0-9]{1,5})\b')
