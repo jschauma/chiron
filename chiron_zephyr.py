@@ -96,17 +96,15 @@ class ZephyrMessage(chiron.Message):
         return recipients
 
     def _send_zgrams(self, messages, z, recipients):
-        if len(messages) > 1:
-            body = '\n'.join(["%s (%s)" % (m, url) for m, url in messages])
-        elif len(messages) > 0:
-            body = '\n'.join([m for m, url in messages])
+        if len(messages) > 0:
+            body = '\n'.join(["%s ( %s )" % (m, url) for m, url in messages])
         else:
             url = "https://github.com/sipb/chiron"
             body = "No ticket number found in message."
         if len(recipients) > 1:
             cc_line = " ".join([strip_default_realm(r) for r in recipients])
             body = "CC: %s\n%s" % (cc_line, body)
-        z.fields = [url, body]
+        z.fields = [" "+url+" ", body]
         print('  -> Reply to: %s (original message was to "%s")' % (recipients, self._zgram.recipient, ))
         if messages or self.is_personal():
             for recipient in recipients:
