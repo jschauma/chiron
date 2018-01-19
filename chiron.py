@@ -291,8 +291,8 @@ def fetch_bible(verse):
     r"""
     Bible fetcher
 
-    >>> fetch_bible("John 4:8")
-    (u'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=John+4%3A8&output-format=plain-text', u'\n=======================================================\nJohn 4:8\n   [8](For his disciples had gone away into the city to buy food.) (ESV)\n(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)')
+    #>>> fetch_bible("John 4:8")
+    #(u'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=John+4%3A8&output-format=plain-text', u'\n=======================================================\nJohn 4:8\n   [8](For his disciples had gone away into the city to buy food.) (ESV)\n(From The Holy Bible, English Standard Version. See http://www.crosswaybibles.org and http://www.esvapi.org/.)')
     """
     u = 'http://www.esvapi.org/v2/rest/passageQuery'
     params = (('key','IP'), ('passage',verse), ('output-format','plain-text'))
