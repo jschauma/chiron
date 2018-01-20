@@ -493,7 +493,3 @@ def format_tickets(last_seen, msg, tickets):
             messages.append((message, u))
             last_seen[(tracker, ticket, msg.cls())] = time.time()
     return messages
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
