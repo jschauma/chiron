@@ -410,7 +410,7 @@ def subspan(arg1, arg2):
     """Return whether the (x,y) range indicated by arg1 is entirely contained in arg2"""
     a,b=arg1
     c,d=arg2
-    return cmp(a, c) - cmp(b, d) >= 1
+    return (a >= c) and (b <= d) and ((a!=c) or (b!=d))
 
 class MatchEngine(object):
     def __init__(self, ):
