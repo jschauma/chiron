@@ -141,7 +141,7 @@ def fetch_trac(base_url):
         if response.status_code == 200:
             reader = csv.DictReader(response.text.split('\n'))
             row = next(reader)
-            return url, row['summary']
+            return url, row.get('summary', None)
         else:
             return url, None
     return trac_fetcher
