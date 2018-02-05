@@ -30,6 +30,7 @@ def add_default_fetchers(match_engine):
         'Chiron': chiron.fetch_github('sipb', 'chiron'),
         'zcommit': chiron.fetch_github('sipb', 'zcommit'),
         'Barnowl Github': chiron.fetch_github('barnowl', 'barnowl'),
+        'Zephyr': chiron.fetch_github('zephyr-im', 'zephyr'),
         'Zulip': chiron.fetch_github('zulip', 'zulip'),
         'RHBZ': chiron.fetch_bugzilla('https://bugzilla.redhat.com'),
         'pag-screen': chiron.fetch_github('sipb', 'pag-screen'),
@@ -61,11 +62,11 @@ def add_default_matchers(match_engine):
     match_engine.add_matcher('zcommit',     r'\bzcommit[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Barnowl Github',  r'\bGithub[-\s:]*#([0-9]{1,6})\b', classes=['barnowl'])
     match_engine.add_matcher('Barnowl Github',  r'\bPR[-\s:]*#([0-9]{1,6})\b', classes=['barnowl'])
+    match_engine.add_matcher('Zephyr',      r'\bzephyr[-\s:]*#([0-9]{1,5})\b', classes=['zephyr-dev'])
     match_engine.add_matcher('Zulip',       r'\bZulip[-\s:]*#([0-9]{1,6})\b')
     match_engine.add_matcher('RHBZ',        r'\bRHBZ[-\s:]#([0-9]{4,7})\b')
     match_engine.add_matcher('pag-screen',  r'\bpag-screen[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Mosh',        r'\bmosh[-\s:]*#([0-9]{1,5})\b')
-    match_engine.add_matcher('Zulip',       r'\bzulip[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Scripts FAQ', r'\bscripts\sfaq[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Scripts FAQ', r'\bfaq[-\s:]*#([0-9]{1,5})\b', classes=['scripts'])
     match_engine.add_matcher('ESP',         r'#([0-9]{2,5})\b(?!-Ubuntu)', classes=['esp'])
@@ -93,7 +94,6 @@ def add_default_matchers(match_engine):
     match_engine.add_trac('Scripts', 'https://scripts.mit.edu/trac', )
     match_engine.add_trac('XVM', 'https://xvm.scripts.mit.edu/trac', )
     match_engine.add_trac('Barnowl', 'https://barnowl.mit.edu', )
-    match_engine.add_trac('Zephyr', 'https://zephyr.1ts.org', classes=['zephyr-dev'])
     match_engine.add_trac('SIPB', 'https://sipb.mit.edu/trac', )
     match_engine.add_trac('Remit', 'https://remit.scripts.mit.edu/trac', )
     match_engine.add_trac('etherpad.mit.edu', 'https://etherpad.scripts.mit.edu/trac', )
