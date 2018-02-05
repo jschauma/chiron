@@ -88,16 +88,16 @@ def add_default_matchers(match_engine):
     match_engine.add_matcher('Puzzle Editing', r'\bpuzzle[ -]editing[-\s:]*#([0-9]{1,5})\b')
 
     match_engine.add_trac('Django', 'https://code.djangoproject.com', classes=[])
-    match_engine.add_trac('Debathena', 'http://debathena.mit.edu/trac', classes=['debathena', 'jdreed', ])
-    match_engine.add_trac('Linerva', 'http://debathena.mit.edu/trac', classes=['linerva', ])
-    match_engine.add_trac('Scripts', 'http://scripts.mit.edu/trac', )
-    match_engine.add_trac('XVM', 'http://xvm.scripts.mit.edu/trac', )
-    match_engine.add_trac('Barnowl', 'http://barnowl.mit.edu', )
-    match_engine.add_trac('Zephyr', 'http://zephyr.1ts.org', classes=['zephyr-dev'])
-    match_engine.add_trac('SIPB', 'http://sipb.mit.edu/trac', )
-    match_engine.add_trac('Remit', 'http://remit.scripts.mit.edu/trac', )
-    match_engine.add_trac('etherpad.mit.edu', 'http://etherpad.scripts.mit.edu/trac', )
-    match_engine.add_trac('ASA', 'http://asa.mit.edu/trac', )
+    match_engine.add_trac('Debathena', 'https://athena10.mit.edu/trac', classes=['debathena', 'jdreed', ])
+    match_engine.add_trac('Linerva', 'https://athena10.mit.edu/trac', classes=['linerva', ])
+    match_engine.add_trac('Scripts', 'https://scripts.mit.edu/trac', )
+    match_engine.add_trac('XVM', 'https://xvm.scripts.mit.edu/trac', )
+    match_engine.add_trac('Barnowl', 'https://barnowl.mit.edu', )
+    match_engine.add_trac('Zephyr', 'https://zephyr.1ts.org', classes=['zephyr-dev'])
+    match_engine.add_trac('SIPB', 'https://sipb.mit.edu/trac', )
+    match_engine.add_trac('Remit', 'https://remit.scripts.mit.edu/trac', )
+    match_engine.add_trac('etherpad.mit.edu', 'https://etherpad.scripts.mit.edu/trac', )
+    match_engine.add_trac('ASA', 'https://asa.scripts.mit.edu/trac', )
 
 def parse_args():
     usage = ('usage: %prog'
