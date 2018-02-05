@@ -10,7 +10,11 @@ from random import choice
 import requests
 import os
 import json
-import csv
+
+if sys.version_info.major < 3:
+    from backports import csv
+else:
+    import csv
 
 try:
     unichr
@@ -92,7 +96,9 @@ def fetch_trac(url):
     Return a fetcher for a Trac instance
 
     >>> fetch_trac("https://debathena.mit.edu/trac")("123")
-    (u'https://debathena.mit.edu/trac/ticket/123', 'debathena-ssl-certificates should include a CRL')
+    (u'https://debathena.mit.edu/trac/ticket/123', u'debathena-ssl-certificates should include a CRL')
+    >>> fetch_trac("https://scripts.mit.edu/trac")("123")
+    (u'https://scripts.mit.edu/trac/ticket/123', u'scripts-remove works poorly with non-Athena accounts')
     """
     def trac_fetcher(ticket):
         u = '%s/ticket/%s' % (url, ticket)
