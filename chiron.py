@@ -146,6 +146,46 @@ def fetch_trac(base_url):
             return url, None
     return trac_fetcher
 
+
+def fetch_jira(url, api_url=None, req=None):
+    """
+    Return a fetcher for a Jira instance
+
+    >>> fetch_jira("https://issues.apache.org")("ZOOKEEPER-1234")
+    (u'https://issues.apache.org/jira/browse/ZOOKEEPER-1234', u'basic cleanup in LearnerHandler')
+
+    Some Jira instances may use different hostnames for interactive usage than
+    for API usage, for example due to using client certs for API authentication
+    and some other mechanism for normal authentication. When the URLs differ,
+    set the api_url option as well as the initial "url" parameter. You can also
+    supply a custom `requests.Session` object with custom cookies, client
+    certs, or other parameters needed to authenticate.
+
+    For example:
+    >>> def make_fetch_jira():
+    ...     r = requests.Session()
+    ...     r.verify = "/path/to/ca.pem"
+    ...     r.cert = ("/path/to/public.crt", "/path/to/private.key")
+    ...     return fetch_jira("https://jira.example.com", api_url="https://api.example.com", req=r)
+    """
+
+    if api_url is None:
+        api_url = url
+    if req is None:
+        req = requests.Session()
+
+    def fetch(ticket):
+        full_api = "%s/jira/rest/api/2/issue/%s?fields=summary" % (api_url, ticket, )
+        # Other fields: description, status, ...
+        html_url = "%s/jira/browse/%s" % (url, ticket, )
+        resp = req.get(full_api)
+        try:
+            return html_url, resp.json()['fields']['summary']
+        except KeyError:
+            return html_url, None
+    return fetch
+
+
 def fetch_github(user, repo, ):
     """
     Return a fetcher for a Github instance
