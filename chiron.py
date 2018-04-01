@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+"""
+Core chiron library function
+
+Defines the Message object for protocol modules to subclass, a standard
+collection of fetcher functions, and the core MatchEngine.
+"""
+
 from __future__ import print_function, unicode_literals
 
 import datetime
@@ -9,13 +17,14 @@ import sys
 import time
 from random import choice
 
-if sys.version_info.major < 3:
-    from backports import csv
-else:
-    import csv
-
+#pylint:disable=c-extension-no-member
 from lxml import etree
 import requests
+
+if sys.version_info.major < 3:
+    from backports import csv #pylint:disable=import-error
+else:
+    import csv
 
 try:
     unichr
@@ -24,6 +33,15 @@ except NameError as exc: # not available in Py3
 
 SEEN_TIMEOUT = 5 * 60
 parser = etree.HTMLParser(encoding='UTF-8') #pylint:disable=invalid-name
+
+# I feel like it's clearer to handle the known/unknown split explicitly
+# with if/else, rather than having the default case fall off the end of
+# the if.
+#pylint:disable=no-else-return
+
+# There's a lot of missing docstring warnings. Disable them all for the
+# moment, until I get around to dealing.
+#pylint:disable=missing-docstring
 
 def fetch_and_parse_xml(url):
     response = requests.get(url, stream=True)
@@ -427,14 +445,14 @@ def fetch_airport(code):
 
 # Special constant-text fetchers
 
-def deal_with_assassin(dummy_ticket):
+def deal_with_assassin(_ticket):
     return ("NO COMBOS OVER ZEPHYR",
             """DO @b(NOT) ASK FOR OR SEND THE OFFICE COMBO
 OVER ZEPHYR, EVEN PERSONAL ZEPHYR.
 Instead, look in /mit/assassin/Office. If you don't have access,
 ask to be added.""")
 
-def invoke_science(dummy_ticket):
+def invoke_science(_ticket):
     return ("SCIENCE!",
             r"""
   ____   ____ ___ _____ _   _  ____ _____
@@ -480,13 +498,14 @@ class MatchEngine(object):
             self.fetchers[name] = fetcher
 
     def add_matcher(self, fetcher, regexp, cond=False, classes=True, flags=re.I, ):
+        #pylint:disable=too-many-arguments
         assert fetcher in self.fetchers
         if cond:
             pass
         elif classes is True:
             cond = lambda m: True
         else:
-            cond = lambda m: (len([cls for cls in classes if cls in m.context()]) > 0)
+            cond = lambda m: bool([cls for cls in classes if cls in m.context()])
         self.matchers.append((fetcher, [build_matcher(regexp, flags)], cond))
 
     def add_trac(self, name, url, classes=None):
