@@ -34,6 +34,7 @@ setup(
     install_requires=['lxml', 'requests', 'backports.csv;python_version<"3"'],
     extras_require={
         #'zephyr': ['-r requirements.zephyr.txt'],
+        'test': ['unittest-xml-reporting'],
         #'test': ['coverage'],
     },
 
