@@ -1,1 +1,3 @@
 *.pyc
+/.tox/
+/chiron_bot.egg-info/
