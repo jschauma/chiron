@@ -1,7 +1,0 @@
-machine:
-  post:
-    - pyenv global 2.7.12 3.5.3
-test:
-  post:
-    - tox --version
-    - mkdir -p $CIRCLE_TEST_REPORTS/reports/ && mv TEST-*.xml $CIRCLE_TEST_REPORTS/reports/
