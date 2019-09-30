@@ -194,7 +194,7 @@ def fetch_cve(ticket):
     >>> url
     u'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0012'
     >>> n
-    u'\\nSome web servers under Microsoft Windows allow remote attackers\\nto bypass access restrictions for files with long file names.\\n'
+    u'\\nSome web servers under Microsoft Windows allow remote attackers to bypass access restrictions for files with long file names.\\n'
     >>> fetch_cve("CVE-1999-9000")
     RHBZ url='https://bugzilla.redhat.com/show_bug.cgi?id=CVE-1999-9000' title='None'
     (u'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-9000', None)
