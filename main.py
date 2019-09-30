@@ -1,26 +1,33 @@
 #!/usr/bin/env python
-from optparse import OptionParser
+"""Main runner for chiron"""
+
+
+from optparse import OptionParser #pylint:disable=deprecated-module
 
 import chiron
 
 def init_match_engine():
+    """Create a MatchEngine and setup default fetchers and matchers"""
     match_engine = chiron.MatchEngine()
     add_default_fetchers(match_engine)
     add_default_matchers(match_engine)
     return match_engine
 
 def add_default_classes(match_engine):
+    """Add default zephyr classes to MatchEngine"""
     match_engine.add_classes([
-            'broder-test', 'geofft-test', 'adehnert-test',
-            'linerva', 'debathena', 'undebathena', 'consult',
-            'sipb', 'sipb-auto', 'scripts', 'barnowl', 'zephyr-dev', 'xvm', 'chiron', 'mirrors',
-            'geofft', 'lizdenys', 'jdreed', 'axs', 'adehnert', 'achernya', 'leee', 'kcr', 'jesus', 'nelhage', 'csvoss', 'shulinye',
-            'assassin',
-            'shank',
-            'remit', 'asa', 'esp',
-        ])
+        'broder-test', 'geofft-test', 'adehnert-test',
+        'linerva', 'debathena', 'undebathena', 'consult',
+        'sipb', 'sipb-auto', 'scripts', 'barnowl', 'zephyr-dev', 'xvm', 'chiron', 'mirrors',
+        'geofft', 'lizdenys', 'jdreed', 'axs', 'adehnert', 'achernya',
+        'leee', 'kcr', 'jesus', 'nelhage', 'csvoss', 'shulinye',
+        'assassin',
+        'shank',
+        'remit', 'asa', 'esp',
+    ])
 
 def add_default_fetchers(match_engine):
+    """Add default fetchers (bugtrackers) to MatchEngine"""
     match_engine.add_fetchers({
         'RFC': chiron.fetch_rfc,
         'CVE': chiron.fetch_cve,
@@ -35,7 +42,6 @@ def add_default_fetchers(match_engine):
         'RHBZ': chiron.fetch_bugzilla('https://bugzilla.redhat.com'),
         'pag-screen': chiron.fetch_github('sipb', 'pag-screen'),
         'Mosh': chiron.fetch_github('keithw', 'mosh'),
-        'Zulip': chiron.fetch_github('zulip', 'zulip'),
         'Scripts FAQ': chiron.fetch_scripts_faq,
         'ESP': chiron.fetch_github('learning-unlimited', 'ESP-Website'),
         'Pokedex': chiron.fetch_pokemon,
@@ -53,6 +59,8 @@ def add_default_fetchers(match_engine):
         })
 
 def add_default_matchers(match_engine):
+    """Add default matchers (regexes) and Tracs to MatchEngine"""
+    # pylint:disable=bad-whitespace,line-too-long
     match_engine.add_matcher('RFC',         r'\bRFC[-\s:]*#?([0-9]{2,5})\b')
     match_engine.add_matcher('CVE',         r'\b(CVE-[0-9]{4}-[0-9]{4,7})\b')
     match_engine.add_matcher('Launchpad',   r'\blp[-\s:]*#([0-9]{4,8})\b')
@@ -100,42 +108,42 @@ def add_default_matchers(match_engine):
     match_engine.add_trac('ASA', 'https://asa.scripts.mit.edu/trac', )
 
 def parse_args():
+    """Parse arguments"""
     usage = ('usage: %prog'
-        + ' [--no-personals]'
-        + ' [--protocol=zephyr|zulip]'
-        + ' [--zulip-rc]'
-        + ' [--default-classes]'
-        + ' [--class=class ...]'
-    )
+             + ' [--no-personals]'
+             + ' [--protocol=zephyr|zulip]'
+             + ' [--zulip-rc]'
+             + ' [--default-classes]'
+             + ' [--class=class ...]')
     parser = OptionParser(usage=usage)
     parser.add_option('--no-personals', dest='no_personals',
-        default=False, action='store_true',
-        help='Disable replying to personals',
-    )
+                      default=False, action='store_true',
+                      help='Disable replying to personals')
     parser.add_option('-p', '--protocol', dest='protocol', default='zephyr', )
     parser.add_option('--zulip-rc', dest='zuliprc', default=None)
     parser.add_option('--default-classes', dest='default_classes',
-            default=False, action='store_true',
-            help='Sub to a default set of classes',
-    )
+                      default=False, action='store_true',
+                      help='Sub to a default set of classes')
     parser.add_option('-c', '--class', dest='classes',
-            default=[], action='append',
-            help='Sub to additional classes',
-    )
+                      default=[], action='append',
+                      help='Sub to additional classes')
     (options, args) = parser.parse_args()
-    if len(args) != 0:
+    if args:
         parser.error("got %d arguments; expected none" % (len(args), ))
     if options.protocol not in ('zephyr', 'zulip'):
-        parser.error("the only supported protocols are zephyr and zulip; you requested %s" % (options.protocol, ))
+        parser.error("the only supported protocols are zephyr and zulip; you requested %s" %
+                     (options.protocol, ))
     if options.zuliprc and options.protocol != 'zulip':
         parser.error('Protocol must be "zulip" if --zulip-rc is provided.')
     if options.protocol != 'zephyr':
         if options.default_classes or options.classes:
             parser.error('Protocol must be "zephyr" if --default-classes or --class is provided.')
-    return options, args
+    return options
 
 def run_with_args(match_engine):
-    options, args = parse_args()
+    """Run Chiron with given MatchEngine"""
+    #pylint:disable=bad-option-value,import-outside-toplevel
+    options = parse_args()
 
     match_engine.ignore_personals = options.no_personals
     if options.default_classes:
@@ -152,6 +160,7 @@ def run_with_args(match_engine):
     chiron_protocol.main(match_engine, options)
 
 def main():
+    """Chiron main function"""
     match_engine = init_match_engine()
     run_with_args(match_engine)
 
