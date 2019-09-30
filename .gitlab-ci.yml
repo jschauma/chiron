@@ -1,0 +1,18 @@
+test:
+  image: ubuntu:latest
+  script:
+    - apt-get update
+    - env DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
+    - add-apt-repository -y ppa:deadsnakes/ppa
+    - env DEBIAN_FRONTEND=noninteractive apt-get install -y tox python2.7 python3.5 python3.6 python3.7
+
+    # Run tests
+    - ls /usr/bin/python* && tox --version
+    - tox
+    - mkdir -p reports/ && mv TEST-*.xml reports/
+
+  artifacts:
+    paths:
+      - reports/
+    reports:
+      junit: reports/TEST-*.xml
