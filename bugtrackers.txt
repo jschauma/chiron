@@ -1,8 +1,10 @@
 - Distros
     - Debian [andersk]
+    - Debian Security Advisories (DSA) [adehnert]
     - Launchpad [geofft]
     - RHBZ [adehnert]
 - Other non-MIT software
+    - RFC [adehnert]
     - CVE [adehnert]
     - Django [adehnert]
 - SIPB
@@ -12,6 +14,7 @@
     - XVM [adehnert]
     - Zephyr [adehnert]
         - Barnowl [geofft]
+    - Zulip [adehnert]
     - SIPB [geofft]
     - zcommit [adehnert]
     - pag-screen [adehnert]
@@ -23,12 +26,15 @@
     - ASA [geofft]
     - ESP [adehnert]
     - Assassin [geofft]
+    - Puzzle editing (Mystery Hunt) [adehnert]
 - Miscellaneous
     - MIT Class [adehnert]
+    - whats (abbreviations) [adehnert]
     - Bible [adehnert]
     - XKCD [adehnert]
     - Unicode [adehnert]
     - Pokedex [geofft]
+    - Airports [adehnert]
     - SCIENCE [geofft]
 
 [ The person who added each bugtracker is in brackets. ]
