@@ -10,6 +10,11 @@ bible verses.
 It also now has experimental support for running as a
 [Zulip](https://zulip.com/) bot instead of a zephyrbot.
 
+[![CircleCI](https://circleci.com/gh/sipb/chiron.svg?style=svg)](https://circleci.com/gh/sipb/chiron)
+[![GitLab CI](https://gitlab.com/adehnert/chiron/badges/master/pipeline.svg)](https://gitlab.com/adehnert/chiron/commits/master)
+
+
+
 Features
 --------
 
