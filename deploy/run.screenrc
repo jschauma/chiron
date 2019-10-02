@@ -4,5 +4,5 @@ source ~/.screenrc
 
 zombie kr
 
-screen -t short k5start -v -f $HOME/Private/daemon-short.keytab daemon/chiron -- /mit/chiron/chiron/deploy/run.sh --default-classes
-screen -t long k5start -v -f $HOME/Private/daemon-chiron.keytab daemon/chiron.mit.edu -- /mit/chiron/chiron/deploy/run.sh
+screen -t short k5start -v -f $HOME/Private/daemon-short.keytab daemon/chiron -- /mit/chiron/chiron-scripts-venv/src/chiron-bot/deploy/run.sh --default-classes
+screen -t long k5start -v -f $HOME/Private/daemon-chiron.keytab daemon/chiron.mit.edu -- /mit/chiron/chiron-scripts-venv/src/chiron-bot/deploy/run.sh
