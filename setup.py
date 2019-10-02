@@ -31,7 +31,7 @@ setup(
     packages=[],
     py_modules=["chiron", "chiron_zephyr", "chiron_zulip"],
 
-    install_requires=['lxml', 'requests', 'backports.csv;python_version<"3"'],
+    install_requires=['lxml', 'requests[security]', 'backports.csv;python_version<"3"'],
     extras_require={
         #'zephyr': ['-r requirements.zephyr.txt'],
         'test': ['unittest-xml-reporting'],
