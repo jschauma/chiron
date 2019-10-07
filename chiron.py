@@ -377,7 +377,7 @@ def fetch_whats(whats):
         title = title.strip()
     return url, (title or None)
 
-def undebathena_fun():
+def undebathena_fun(ticket): #pylint:disable=unused-argument
     url = 'http://debathena.mit.edu/trac/wiki/PackageNamesWeDidntUse'
     xml, dummy_response = fetch_and_parse_xml(url)
     package = choice(xml.xpath('id("content")//li')).text.strip()
@@ -531,8 +531,10 @@ def subspan(arg1, arg2):
     >>> subspan((2,3), (1,4))
     True
     >>> subspan((1,4), (1,4))
-    False
+    True
     """
+    if arg1 == arg2: # ignores two identical matching strings
+        return True
     beg1, end1 = arg1
     beg2, end2 = arg2
     return (beg1 >= beg2) and (end1 <= end2) and ((beg1 != beg2) or (end1 != end2))
@@ -585,6 +587,7 @@ class MatchEngine(object):
                         # If the text matched by this matcher is a subset of
                         # that matched for by any other matcher, skip this one
                         if any(subspan(span, span1) for tracker1, fetcher1, t1, span1 in tickets):
+                            print("  -> ignoring tracker %s with smaller span %s" % (tracker, span))
                             continue
                         # Remove from tickets any whose text is a subset of
                         # this one's matched text.
@@ -604,16 +607,13 @@ class MatchEngine(object):
 
 def format_tickets(last_seen, msg, tickets):
     messages = []
-    for tracker, fetcher, ticket, dummy_span in tickets:
-        print("  -> Found ticket: %s, %s" % (tracker, ticket, ))
+    for tracker, fetcher, ticket, span in tickets:
+        print("  -> Found ticket: %s, %s (span: %s)" % (tracker, ticket, span))
         age_key = (tracker, ticket, msg.cls()) if not msg.is_personal() else None
         old_enough = (last_seen.get(age_key, 0) < time.time() - SEEN_TIMEOUT)
         # for personals, don't bother tracking age
         if old_enough or msg.is_personal():
-            if msg.cls()[:2] == 'un':
-                url, name = undebathena_fun()
-            else:
-                url, name = fetcher(ticket)
+            url, name = fetcher(ticket)
             if not name:
                 name = 'Unable to identify ticket %s' % ticket
             message = '%s ticket %s: %s' % (tracker, ticket, name)

@@ -55,6 +55,7 @@ def add_default_fetchers(match_engine):
         'Assassin': chiron.deal_with_assassin,
         'SCIENCE': chiron.invoke_science,
         'Debothena Test': chiron.invoke_debothena,
+        'Undebathena': chiron.undebathena_fun,
         'Puzzle Editing': chiron.fetch_github('mysteryhunt', 'puzzle-editing'),
         })
 
@@ -94,6 +95,8 @@ def add_default_matchers(match_engine):
     match_engine.add_matcher('Assassin',    r'\b(combination)\b', classes=['assassin'])
     match_engine.add_matcher('SCIENCE',     r'^(science)$', classes=['axs'])
     match_engine.add_matcher('Debothena Test', r'\bdebothena test[-\s:]*#([0-9]{1,5})\b')
+    match_engine.add_matcher('Undebathena', r'#([0-9]{2,5})\b(?!-Ubuntu)', classes=['undebathena'])
+    match_engine.add_matcher('Undebathena', r'\bundebathena[-\s:]*#([0-9]{1,5})\b')
     match_engine.add_matcher('Puzzle Editing', r'\bpuzzle[ -]editing[-\s:]*#([0-9]{1,5})\b')
 
     match_engine.add_trac('Django', 'https://code.djangoproject.com', classes=[])
@@ -106,6 +109,7 @@ def add_default_matchers(match_engine):
     match_engine.add_trac('Remit', 'https://remit.scripts.mit.edu/trac', )
     match_engine.add_trac('etherpad.mit.edu', 'https://etherpad.scripts.mit.edu/trac', )
     match_engine.add_trac('ASA', 'https://asa.scripts.mit.edu/trac', )
+
 
 def parse_args():
     """Parse arguments"""
