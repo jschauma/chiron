@@ -25,3 +25,45 @@ jobs:
         path: /tmp/circleci-artifacts
     - store_artifacts:
         path: /tmp/circleci-test-results
+
+  scripts-build:
+    environment:
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+    docker:
+    - image: fedora:20
+    steps:
+    # Set things up
+    - checkout
+    - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
+    - run: yum install -y python-virtualenv python-pip git
+    - run:
+        command: |
+          virtualenv venv
+          . venv/bin/activate
+          # Apparently tox doesn't even install without a newer setuptools
+          pip install --upgrade pip setuptools
+          pip install tox
+
+    # Run tests
+    - run:
+        command: |
+          . venv/bin/activate
+          PATH=$HOME/.local/bin/:$PATH tox
+          PATH=$HOME/.local/bin/:$PATH tox --version
+    - run: mkdir -p $CIRCLE_TEST_REPORTS/reports/ && mv TEST-*.xml $CIRCLE_TEST_REPORTS/reports/
+
+    # Store outputs
+    - store_test_results:
+        path: /tmp/circleci-test-results
+    - store_artifacts:
+        path: /tmp/circleci-artifacts
+    - store_artifacts:
+        path: /tmp/circleci-test-results
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - build
+      - scripts-build
