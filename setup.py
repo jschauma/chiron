@@ -35,8 +35,8 @@ setup(
     extras_require={
         #'zephyr': ['-r requirements.zephyr.txt'],
         'test': ['unittest-xml-reporting'],
-        'zulip': ['zulip'],
         #'test': ['coverage'],
+        'zulip': ['zulip'],
     },
 
     # To provide executable scripts, use entry points in preference to the
