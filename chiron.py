@@ -209,9 +209,9 @@ def fetch_rfc(number):
     RFC fetcher
 
     >>> fetch_rfc("1234")
-    (u'https://tools.ietf.org/html/rfc1234', 'Tunneling IPX traffic through IP networks')
+    (u'https://www.rfc-editor.org/rfc/rfc1234', 'Tunneling IPX traffic through IP networks')
     """
-    url = "https://tools.ietf.org/html/rfc%s" % (number, )
+    url = "https://www.rfc-editor.org/rfc/rfc%s" % (number, )
     xml, dummy_response = fetch_and_parse_xml(url)
     title = xml.xpath('string(//meta[@name="DC.Title"]/@content)')
     return url, (title or None)
